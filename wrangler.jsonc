@@ -8,6 +8,7 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	"routes": [{ "pattern": "szutra.digitalhumanities.hu", "custom_domain": true }],
 	"observability": {
 		"enabled": true
 	}
