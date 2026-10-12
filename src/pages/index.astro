@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Gong from '../components/Gong.astro';
+
+const all = (await getCollection('szutrak')).sort((a, b) => a.data.order - b.data.order);
+const byLang = (lang: 'hu' | 'en') => {
+  const groups: { name: string; items: typeof all }[] = [];
+  for (const e of all.filter((x) => x.data.lang === lang)) {
+    let g = groups.find((x) => x.name === e.data.group);
+    if (!g) groups.push((g = { name: e.data.group, items: [] }));
+    g.items.push(e);
+  }
+  return groups;
+};
+const books = [
+  { lang: 'hu' as const, label: 'Szútrák', id: 'hu', groups: byLang('hu') },
+  { lang: 'en' as const, label: 'English sutra book', id: 'en', groups: byLang('en') },
+];
+---
+<Base>
+  <header class="cover">
+    <Gong />
+    <div class="cover-inner">
+      <p class="kicker">Onedropzendo</p>
+      <h1>Szútra<wbr />könyv</h1>
+      <p class="year">2022</p>
+      <nav class="jump" aria-label="Nyelv">
+        <a href="#hu">Magyar</a>
+        <a href="#en">English</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="legend" aria-labelledby="jelzesek">
+    <h2 id="jelzesek">Jelzések <small>Notation</small></h2>
+    <dl>
+      <div><dt><span class="gong"><span class="o"></span></span></dt><dd>nagy gong <small>large gong</small></dd></div>
+      <div><dt><span class="gong"><span class="x"></span></span></dt><dd>kis gong <small>small gong</small></dd></div>
+      <div><dt><span class="gong"><span class="roll"><i style="margin-left:.36em"></i><i style="margin-left:.28em"></i><i style="margin-left:.2em"></i><i style="margin-left:.13em"></i><i style="margin-left:.08em"></i><i style="margin-left:.04em"></i></span></span></dt><dd>folyamatos gyorsuló <small>accelerating</small></dd></div>
+      <div><dt><span class="gong"><span class="stop"></span><span class="o"></span></span></dt><dd>leállított bongás <small>muted strike</small></dd></div>
+    </dl>
+  </section>
+
+  <main class="books">
+    {books.map((b) => (
+      <section class="book" id={b.id} lang={b.lang}>
+        <h2>{b.label}</h2>
+        {b.groups.map((g) => (
+          <div class="group">
+            <h3>{g.name}</h3>
+            <ol>
+              {g.items.map((e) => <li><a href={`/${e.id}`}><span>{e.data.title}</span>{e.data.subtitle && <small>{e.data.subtitle}</small>}</a></li>)}
+            </ol>
+          </div>
+        ))}
+      </section>
+    ))}
+  </main>
+
+  <footer class="site">
+    <p>Egy Csepp Alapítvány · Készült Budapesten 2022-ben</p>
+    <p><a href="https://www.onedropzen.hu">www.onedropzen.hu</a> · <a href="mailto:onedropzendo@gmail.com">onedropzendo@gmail.com</a></p>
+  </footer>
+</Base>

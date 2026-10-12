@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('szutrak')).sort((a, b) => a.data.order - b.data.order);
+  return all.map((entry) => {
+    const same = all.filter((e) => e.data.lang === entry.data.lang);
+    const i = same.indexOf(entry);
+    return { params: { id: entry.id }, props: { entry, same, prev: same[i - 1], next: same[i + 1], n: i + 1 } };
+  });
+}
+
+const { entry, same, prev, next, n } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const ui = d.lang === 'hu'
+  ? { book: 'Szútrakönyv', toc: 'Tartalom', prev: 'Előző', next: 'Következő', end: 'Vége', other: 'English', otherHref: '/#en', pager: 'Lapozás' }
+  : { book: 'Sutra book', toc: 'Contents', prev: 'Previous', next: 'Next', end: 'End', other: 'Magyar', otherHref: '/#hu', pager: 'Pager' };
+const groups: { name: string; items: typeof same }[] = [];
+for (const e of same) {
+  let g = groups.find((x) => x.name === e.data.group);
+  if (!g) groups.push((g = { name: e.data.group, items: [] }));
+  g.items.push(e);
+}
+---
+<Base title={d.title} lang={d.lang}>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  <nav class="bar">
+    <a href="/" class="home">{ui.book}</a>
+    <span>
+      <a href={`/#${d.lang}`}>{ui.toc}</a>
+      <a href={ui.otherHref} lang={d.lang === 'hu' ? 'en' : 'hu'}>{ui.other}</a>
+    </span>
+  </nav>
+
+  <div class="layout">
+    <aside class="side" aria-label={ui.toc}>
+      {groups.map((g) => (
+        <div>
+          <h2>{g.name}</h2>
+          <ol>
+            {g.items.map((e) => <li><a href={`/${e.id}`} aria-current={e.id === entry.id ? 'page' : undefined}>{e.data.title}</a></li>)}
+          </ol>
+        </div>
+      ))}
+    </aside>
+
+    <article class="page">
+      <p class="eyebrow"><span>{String(n).padStart(2, '0')}</span> {d.group}</p>
+      <h1 class="title">{d.title}</h1>
+      {d.subtitle && <p class="subtitle">{d.subtitle}</p>}
+      <div class="prose"><Content /></div>
+      <nav class="pager" aria-label={ui.pager}>
+        {prev ? <a href={`/${prev.id}`} rel="prev"><small>{ui.prev}</small>{prev.data.title}</a> : <span />}
+        {next ? <a href={`/${next.id}`} rel="next"><small>{ui.next}</small>{next.data.title}</a> : <a href={`/#${d.lang}`}><small>{ui.end}</small>{ui.toc}</a>}
+      </nav>
+    </article>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var bar = document.getElementById('bar');
+      function u() {
+        var h = document.documentElement;
+        var p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+        bar.style.transform = 'scaleY(' + Math.min(1, Math.max(0, p)) + ')';
+      }
+      addEventListener('scroll', u, { passive: true });
+      u();
+      var side = document.querySelector('.side');
+      var cur = side && side.querySelector('[aria-current]');
+      if (cur) side.scrollTop = cur.offsetTop - side.clientHeight / 2;
+    })();
+  </script>
+</Base>

@@ -1,0 +1,8 @@
+---
+// Cover motif: a bronze gong seen from the front, with rings that ripple outwards once.
+const rings = [92, 78, 64, 50, 36, 22];
+---
+<svg class="gong-art" viewBox="-100 -100 200 200" fill="none" stroke="currentColor" aria-hidden="true">
+  {rings.map((r, i) => <circle r={r} stroke-width={i === 0 ? 3 : 1.2} style={`--i:${i}`} />)}
+  <circle r="9" fill="currentColor" stroke="none" class="boss" />
+</svg>
