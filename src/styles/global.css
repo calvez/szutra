@@ -62,7 +62,7 @@ a:hover { color: var(--bronze); }
 
 /* ---------- gong marks ---------- */
 .gong { display: inline-flex; align-items: center; vertical-align: middle; font-size: 1em; line-height: 1; margin-inline: 0.15em; }
-.gong > * { display: inline-block; flex: none; font-size: 0; }
+.gong > * { display: inline-block; flex: none; }
 .gong .sp { margin-left: 0.55em; }
 .gong .o { width: 1.05em; height: 1.05em; border: 0.14em solid var(--bronze); border-radius: 50%; margin-left: 0.18em; }
 .gong .o:first-child { margin-left: 0; }
