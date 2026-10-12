@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import { excerpt } from '../lib/excerpt';
 
 export async function getStaticPaths() {
   const all = (await getCollection('szutrak')).sort((a, b) => a.data.order - b.data.order);
@@ -24,7 +25,7 @@ for (const e of same) {
   g.items.push(e);
 }
 ---
-<Base title={d.title} lang={d.lang}>
+<Base title={d.title} description={excerpt(entry.body)} lang={d.lang}>
   <div class="progress" aria-hidden="true"><i id="bar"></i></div>
   <nav class="bar">
     <a href="/" class="home">{ui.book}</a>

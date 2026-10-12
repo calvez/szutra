@@ -17,8 +17,18 @@ const books = [
   { lang: 'hu' as const, label: 'Szútrák', id: 'hu', groups: byLang('hu') },
   { lang: 'en' as const, label: 'English sutra book', id: 'en', groups: byLang('en') },
 ];
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: 'Szútrakönyv',
+  url: Astro.site?.href,
+  inLanguage: ['hu', 'en'],
+  publisher: { '@type': 'Organization', name: 'Egy Csepp Alapítvány', url: 'https://www.onedropzen.hu' },
+  datePublished: '2022',
+};
 ---
 <Base>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(structuredData)} />
   <header class="cover">
     <Gong />
     <div class="cover-inner">

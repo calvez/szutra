@@ -1,7 +1,11 @@
 ---
+import { SEO } from 'astro-seo';
 import '../styles/global.css';
 interface Props { title?: string; description?: string; lang?: 'hu' | 'en'; }
 const { title, description = 'Onedropzendo Szútrakönyv – Sesshin szútrák, dharánik és étkezési szútrák magyarul és angolul, gong-jelzésekkel.', lang = 'hu' } = Astro.props;
+const canonicalPath = Astro.url.pathname.replace(/(\/index)?\.html$/, '') || '/';
+const canonical = new URL(canonicalPath, Astro.site);
+const image = new URL('/og.png', Astro.site).href;
 const full = title ? `${title} – Szútrakönyv` : 'Szútrakönyv – Onedropzendo';
 ---
 <!doctype html>
@@ -9,16 +13,23 @@ const full = title ? `${title} – Szútrakönyv` : 'Szútrakönyv – Onedropze
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{full}</title>
-    <meta name="description" content={description} />
+    <SEO
+      title={full}
+      description={description}
+      canonical={canonical}
+      openGraph={{
+        basic: { title: full, type: canonicalPath === '/' ? 'book' : 'article', image, url: canonical },
+        optional: { description, locale: lang === 'hu' ? 'hu_HU' : 'en_GB', siteName: 'Szútrakönyv' },
+        image: { width: 1200, height: 630, alt: 'Szútrakönyv – Onedropzendo' },
+      }}
+      twitter={{ card: 'summary_large_image' }}
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#efe9dc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)" />
-    <meta property="og:title" content={full} />
-    <meta property="og:description" content={description} />
-    <meta property="og:locale" content={lang === 'hu' ? 'hu_HU' : 'en_GB'} />
-    <meta property="og:type" content="book" />
     <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
   </head>
   <body>
     <slot />
